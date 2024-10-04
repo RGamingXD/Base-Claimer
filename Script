@@ -1,0 +1,34 @@
+local bases = workspace:WaitForChild("Bases")
+
+local function ClaimBase(player)
+	for _, Base in bases:GetChildren() do
+		if Base:GetAttribute("Claimed") then continue end
+		Base:SetAttribute("Claimed", true)
+		Base:SetAttribute("UserId", player.UserId)
+		return Base
+	end
+	return nil
+end
+
+local function UnclaimBase(player)
+	for _, Base in bases:GetChildren() do
+		if Base:GetAttribute("UserId") == player.UserId then
+			Base:SetAttribute("Claimed", false)
+			Base:SetAttribute("UserId", nil)
+			return
+		end
+	end
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+	local Base = ClaimBase(player)
+	if not Base then
+		warn("No more bases available")
+		player:Kick()
+		return
+	end
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+	UnclaimBase(player)
+end)
